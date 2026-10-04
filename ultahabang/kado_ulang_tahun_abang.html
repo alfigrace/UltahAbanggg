@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selamat Ulang Tahun Abang Sayang🦁</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Family Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Sacramento&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'night-dark': '#0a0e1a',
+                        'night-mid': '#1a1b2f',
+                        'night-glow': '#2a1b32',
+                        'warm-amber': '#ffb703',
+                        'warm-gold': '#fb8500',
+                        'romantic-pink': '#ff758f',
+                        'romantic-purple': '#c77dff',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        handwriting: ['Caveat', 'cursive'],
+                        romantic: ['Sacramento', 'cursive'],
+                    },
+                    animation: {
+                        'float-slow': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 3s infinite alternate',
+                        'twinkle': 'twinkle 2s ease-in-out infinite alternate',
+                        'spin-slow': 'spin 20s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        pulseGlow: {
+                            '0%': { boxShadow: '0 0 15px rgba(255, 183, 3, 0.3)' },
+                            '100%': { boxShadow: '0 0 35px rgba(255, 183, 3, 0.8), 0 0 15px rgba(255, 117, 143, 0.5)' },
+                        },
+                        twinkle: {
+                            '0%': { opacity: '0.3', transform: 'scale(0.8)' },
+                            '100%': { opacity: '1', transform: 'scale(1.2)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: linear-gradient(180deg, #0a0e1a 0%, #1a1b2f 50%, #2a1b32 100%);
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        /* Night glow particles & lanterns */
+        .lantern {
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.9) 0%, rgba(255, 140, 0, 0.6) 40%, rgba(255, 69, 0, 0) 70%);
+            filter: drop-shadow(0 0 15px #ffa500);
+        }
+
+        .glass-card {
+            background: rgba(26, 27, 47, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .glass-card-gold {
+            background: rgba(42, 27, 50, 0.7);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 183, 3, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(255, 133, 0, 0.15);
+        }
+
+        /* Floating hearts effect */
+        .heart-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            animation: floatUp 4s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(0.8) rotate(0deg);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-100vh) scale(1.5) rotate(360deg);
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0e1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2a1b32;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ffb703;
+        }
+    </style>
+</head>
+
+<body class="relative min-h-screen font-sans antialiased selection:bg-warm-amber selection:text-night-dark">
+
+    <!-- Audio Element untuk memutar lagu Raja Giannuca dari folder -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="Nuca - Masa ini, Nanti, dan Masa Indah Lainnya Lirik Lagu.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Background Canvas Stars & Night Sky -->
+    <canvas id="starCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <!-- Floating Ambient Orbs & Moon -->
+    <div
+        class="fixed top-10 right-10 w-32 h-32 md:w-48 md:h-48 rounded-full bg-gradient-to-tr from-amber-100 to-yellow-200 opacity-80 blur-[2px] shadow-[0_0_60px_rgba(255,230,150,0.6)] pointer-events-none z-0 flex items-center justify-center">
+        <!-- Moon Craters detail -->
+        <div class="w-8 h-8 rounded-full bg-amber-200/30 absolute top-6 left-8"></div>
+        <div class="w-12 h-12 rounded-full bg-amber-200/20 absolute bottom-8 right-10"></div>
+    </div>
+
+    <!-- Background Floating Light Lanterns -->
+    <div id="lanterns-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- Audio Player Toggle Floating Widget -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button id="musicToggleBtn" onclick="toggleMusic()"
+            class="group flex items-center gap-3 px-4 py-3 rounded-full glass-card-gold text-amber-300 hover:text-white transition-all duration-300 shadow-lg hover:scale-105 active:scale-95">
+            <span class="relative flex h-3 w-3">
+                <span id="musicPulse"
+                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75 hidden"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-warm-amber"></span>
+            </span>
+            <i id="musicIcon" class="fas fa-music text-lg"></i>
+            <span id="musicText" class="text-xs font-semibold tracking-wider uppercase pr-1">Play Musik Romantis</span>
+        </button>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <div class="relative z-10 max-w-5xl mx-auto px-4 py-8 md:py-16 flex flex-col gap-16 md:gap-24">
+
+        <!-- HERO SECTION -->
+        <header class="text-center flex flex-col items-center justify-center pt-8 md:pt-12 min-h-[75vh] relative">
+
+            <!-- Korean Romantic Subtitle Badge -->
+            <div
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-amber-300 text-sm md:text-base font-medium mb-6 animate-pulse-glow">
+                <span>✨</span>
+                <span>생일 축하해요, 내 사랑</span>
+                <span>✨</span>
+            </div>
+
+            <!-- Main Title with Glow -->
+            <h1
+                class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-rose-300 mb-4 leading-normal pb-2">
+                Selamat Ulang Tahun,<br class="hidden sm:inline" /> Abang Sayang!
+            </h1>
+
+            <p
+                class="font-romantic text-3xl md:text-5xl text-rose-300 my-2 drop-shadow-[0_2px_10px_rgba(255,117,143,0.5)]">
+                Another year around the sun, 사랑해💕
+            </p>
+
+            <p class="text-slate-300 max-w-2xl text-sm md:text-lg mt-4 px-4 font-light leading-relaxed">
+                Kado kecil dari <span class="text-amber-300 font-semibold">Neng</span> untuk <span
+                    class="text-amber-300 font-semibold">Abang</span> tercinta.
+            </p>
+
+            <!-- LDR Status Indicator Pill -->
+            <div class="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs md:text-sm font-medium">
+                <div class="glass-card px-5 py-2.5 rounded-2xl flex items-center gap-3 border-rose-500/30">
+                    <span class="text-xl">🇮🇩</span>
+                    <span class="text-slate-300">Indonesia (Neng)</span>
+                    <i class="fas fa-plane text-amber-400 animate-pulse"></i>
+                    <span class="text-xl">🇰🇷</span>
+                    <span class="text-slate-300">Korea Selatan (Abang)</span>
+                </div>
+                <div
+                    class="glass-card px-4 py-2.5 rounded-2xl text-amber-300 border-amber-500/30 flex items-center gap-2">
+                    <i class="fas fa-calendar-heart text-rose-400"></i>
+                    <span>5 Oktober 1999 • 27 Tahun</span>
+                </div>
+            </div>
+
+            <!-- Scroll Indicator -->
+            <div
+                class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 text-slate-400 animate-bounce">
+                <span class="text-xs tracking-widest uppercase">Gulir ke bawah</span>
+                <i class="fas fa-chevron-down text-amber-400"></i>
+            </div>
+        </header>
+
+        <!-- COUNTDOWN & LDR TRACKER SECTION -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Relationship Counter Card -->
+            <div
+                class="glass-card-gold p-6 md:p-8 rounded-3xl flex flex-col justify-between relative overflow-hidden group hover:border-amber-400 transition-all duration-500">
+                <div
+                    class="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all">
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span
+                            class="text-xs uppercase tracking-wider text-amber-400 font-semibold flex items-center gap-2">
+                            <i class="fas fa-heart text-rose-500"></i> Hari Bersama Sejak Jadian
+                        </span>
+                        <span class="text-xs text-slate-400">6 Juni 2026</span>
+                    </div>
+                    <div class="text-3xl sm:text-4xl md:text-5xl font-black text-amber-200 my-2 tracking-tight"
+                        id="daysTogetherCount">
+                        0 <span class="text-lg font-normal text-slate-300">Hari</span>
+                    </div>
+                    <p class="text-sm text-slate-300 mt-2">
+                        Sejak hari indah di mana kita sepakat untuk memulai langkah berdua 💕
+                    </p>
+                </div>
+                <div
+                    class="mt-6 pt-4 border-t border-amber-500/20 flex items-center justify-between text-xs text-amber-300 font-mono">
+                    <span>"보고 싶어" (Aku merindukanmu)</span>
+                    <span class="text-xl">🦁❤️️🐣</span>
+                </div>
+            </div>
+
+            <!-- LDR Tracker Month Counter -->
+            <div
+                class="glass-card p-6 md:p-8 rounded-3xl flex flex-col justify-between relative overflow-hidden group hover:border-rose-400 transition-all duration-500">
+                <div
+                    class="absolute -right-6 -bottom-6 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl group-hover:bg-rose-500/20 transition-all">
+                </div>
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span
+                            class="text-xs uppercase tracking-wider text-rose-400 font-semibold flex items-center gap-2">
+                            <i class="fas fa-globe-asia text-sky-400"></i> Perjuangan LDR Korea - Indonesia
+                        </span>
+                        <span class="text-xs text-slate-400">Merantau Ke-4 Bulan</span>
+                    </div>
+                    <div class="text-3xl sm:text-4xl md:text-5xl font-black text-rose-200 my-2 tracking-tight">
+                        Bulan Ke-4 <span class="text-lg font-normal text-slate-300">LDR</span>
+                    </div>
+                    <p class="text-sm text-slate-300 mt-2">
+                        Meskipun terpisah 4.000+ KM, semoga doa dan rindu Neng tetap sampai ke Abang di Korea 🇰🇷.
+                    </p>
+                </div>
+                <div
+                    class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-rose-300 font-mono">
+                    <span>"영원히 함께하자" (Mari bersama selamanya)</span>
+                    <span class="text-xl">✈️🌏</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ROMANTIC LOVE STORY TIMELINE -->
+        <section class="flex flex-col gap-8">
+            <div class="text-center">
+                <span class="text-amber-400 text-sm uppercase tracking-widest font-semibold">Jejak Langkah Cinta
+                    Kita</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-100 mt-2">Kisah 8 Tahun "Abang" & "Neng"</h2>
+                <div class="w-16 h-1 bg-gradient-to-r from-amber-400 to-rose-500 mx-auto mt-3 rounded-full"></div>
+            </div>
+
+            <!-- Timeline Vertical Grid -->
+            <div class="relative border-l-2 border-amber-500/30 ml-4 md:ml-32 space-y-12 py-4">
+
+                <!-- Item 1: 8 Tahun -->
+                <div class="relative pl-8 md:pl-12 group">
+                    <!-- Dot -->
+                    <div
+                        class="absolute -left-[17px] top-1.5 w-8 h-8 rounded-full bg-night-dark border-2 border-amber-400 flex items-center justify-center text-amber-300 group-hover:scale-125 transition-all duration-300 shadow-[0_0_15px_rgba(255,183,3,0.5)]">
+                        <i class="fas fa-hourglass-start text-xs"></i>
+                    </div>
+                    <!-- Label year (desktop left margin) -->
+                    <span
+                        class="hidden md:block absolute -left-32 top-1.5 text-xs font-bold uppercase tracking-wider text-amber-400 w-24 text-right">
+                        8 Tahun Lalu
+                    </span>
+                    <!-- Card -->
+                    <div
+                        class="glass-card p-6 rounded-2xl border-l-4 border-l-amber-400 hover:translate-x-2 transition-transform duration-300">
+                        <span class="md:hidden text-xs font-bold uppercase text-amber-400 block mb-1">8 Tahun Lalu
+                            hingga Awal 2026</span>
+                        <h3 class="text-xl font-bold text-amber-200 mb-2">Awal Mula Panggilan "Abang" & "Neng" 🦁💕</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            8 tahun lamanya kita saling menyapa dengan sebutan hangat "Abang" dan "Neng". Perjalanan
+                            yang cukup panjang dengan pasang surut, tanpa ada yang berani memulai. Haha kalau
+                            diingat-ingat lucu juga🤣.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Item 2: Mei - Juni 2026 -->
+                <div class="relative pl-8 md:pl-12 group">
+                    <div
+                        class="absolute -left-[17px] top-1.5 w-8 h-8 rounded-full bg-night-dark border-2 border-rose-400 flex items-center justify-center text-rose-300 group-hover:scale-125 transition-all duration-300 shadow-[0_0_15px_rgba(255,117,143,0.5)]">
+                        <i class="fas fa-coffee text-xs"></i>
+                    </div>
+                    <span
+                        class="hidden md:block absolute -left-32 top-1.5 text-xs font-bold uppercase tracking-wider text-rose-400 w-24 text-right">
+                        Mei - Juni 2026
+                    </span>
+                    <div
+                        class="glass-card p-6 rounded-2xl border-l-4 border-l-rose-400 hover:translate-x-2 transition-transform duration-300">
+                        <span class="md:hidden text-xs font-bold uppercase text-rose-400 block mb-1">Mei - Juni
+                            2026</span>
+                        <h3 class="text-xl font-bold text-rose-200 mb-2">Momen Cuti & Keberanian Abang ☕🌸</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Saat Abang cuti, Abang mengambil langkah pertama untuk mengajak Neng jalan duluan dan Neng
+                            memberanikan diri untuk mencoba membuka hati dan memberikan kesempatan terbaik untuk kisah
+                            kita yang baru.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Item 3: 6 Juni 2026 -->
+                <div class="relative pl-8 md:pl-12 group">
+                    <div
+                        class="absolute -left-[17px] top-1.5 w-8 h-8 rounded-full bg-night-dark border-2 border-warm-amber flex items-center justify-center text-warm-amber group-hover:scale-125 transition-all duration-300 shadow-[0_0_20px_rgba(255,183,3,0.8)]">
+                        <i class="fas fa-heart text-xs"></i>
+                    </div>
+                    <span
+                        class="hidden md:block absolute -left-32 top-1.5 text-xs font-bold uppercase tracking-wider text-warm-amber w-24 text-right">
+                        6 Juni 2026
+                    </span>
+                    <div
+                        class="glass-card-gold p-6 rounded-2xl border-l-4 border-l-warm-amber hover:translate-x-2 transition-transform duration-300">
+                        <span class="md:hidden text-xs font-bold uppercase text-warm-amber block mb-1">6 Juni
+                            2026</span>
+                        <h3 class="text-xl font-bold text-amber-200 mb-2">Tanggal Jadian Kita 💕✨</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Tanggal dimana dua hati kita sepakat. Walaupun hanya sempat ketemu 3 kali sebelum Abang
+                            harus kembali terbang merantau, setiap detik tatap muka itu tersimpan rapi di hati Neng.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Item 4: Oktober 2026 -->
+                <div class="relative pl-8 md:pl-12 group">
+                    <div
+                        class="absolute -left-[17px] top-1.5 w-8 h-8 rounded-full bg-night-dark border-2 border-purple-400 flex items-center justify-center text-purple-300 group-hover:scale-125 transition-all duration-300 shadow-[0_0_15px_rgba(199,125,255,0.5)]">
+                        <i class="fas fa-birthday-cake text-xs"></i>
+                    </div>
+                    <span
+                        class="hidden md:block absolute -left-32 top-1.5 text-xs font-bold uppercase tracking-wider text-purple-400 w-24 text-right">
+                        Oktober 2026
+                    </span>
+                    <div
+                        class="glass-card p-6 rounded-2xl border-l-4 border-l-purple-400 hover:translate-x-2 transition-transform duration-300">
+                        <span class="md:hidden text-xs font-bold uppercase text-purple-400 block mb-1">Oktober
+                            2026</span>
+                        <h3 class="text-xl font-bold text-purple-200 mb-2">Bulan Ke-4 LDR & Ulang Tahun Abang 🎂🎁</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            Memasuki bulan ke-4 merantau dan tepat di tanggal 5 Oktober, Neng merayakan ulang tahun
+                            Abang dengan sejuta rasa syukur dan rindu yang membuncah.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- PHOTO MEMORIES & POLAROID FRAME GALLERY -->
+        <section class="flex flex-col gap-8">
+            <div class="text-center">
+                <span class="text-rose-400 text-sm uppercase tracking-widest font-semibold">Kenangan Kita</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-100 mt-2">Momen Spesial Kita</h2>
+                <p class="text-slate-400 text-sm mt-1">Bingkai kenangan manis yang akan selalu hangat dan diingat</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+
+                <!-- Polaroid Card 1 -->
+                <div
+                    class="glass-card p-4 rounded-2xl hover:-translate-y-2 hover:rotate-1 transition-all duration-300 group cursor-pointer">
+                    <div
+                        class="relative overflow-hidden rounded-xl aspect-[4/3] bg-slate-800 flex items-center justify-center">
+                        <img src="a.jpeg" alt="Warm Night Couple"
+                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+                            onerror="this.src='https://placehold.co/600x400/2a1b32/ffb703?text=Abang+%26+Neng'" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-night-dark/80 via-transparent to-transparent">
+                        </div>
+                        <span
+                            class="absolute bottom-3 left-3 text-xs bg-amber-500/80 text-slate-900 font-bold px-2.5 py-1 rounded-lg backdrop-blur-sm">
+                            27 Mei 2026
+                        </span>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="font-handwriting text-2xl text-amber-200">"Pertemuan Pertama"</p>
+                        <p class="text-xs text-slate-400 mt-1">Kali pertama bertemu dan memberanikan diri untuk foto
+                            berdua</p>
+                    </div>
+                </div>
+
+                <!-- Polaroid Card 2 -->
+                <div
+                    class="glass-card p-4 rounded-2xl hover:-translate-y-2 hover:-rotate-1 transition-all duration-300 group cursor-pointer">
+                    <div
+                        class="relative overflow-hidden rounded-xl aspect-[4/3] bg-slate-800 flex items-center justify-center">
+                        <img src="c.jpeg" alt="Starry Sky LDR"
+                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+                            onerror="this.src='https://placehold.co/600x400/1a1b2f/c77dff?text=Langit+Yang+Sama'" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-night-dark/80 via-transparent to-transparent">
+                        </div>
+                        <span
+                            class="absolute bottom-3 left-3 text-xs bg-rose-500/80 text-white font-bold px-2.5 py-1 rounded-lg backdrop-blur-sm">
+                            6 Juni 2026
+                        </span>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="font-handwriting text-2xl text-rose-200">"Hari Kita"</p>
+                        <p class="text-xs text-slate-400 mt-1">Langit bumi bersaksi (ea) XD</p>
+                    </div>
+                </div>
+
+                <!-- Polaroid Card 3 -->
+                <div
+                    class="glass-card p-4 rounded-2xl hover:-translate-y-2 hover:rotate-1 transition-all duration-300 group cursor-pointer sm:col-span-2 lg:col-span-1">
+                    <div
+                        class="relative overflow-hidden rounded-xl aspect-[4/3] bg-slate-800 flex items-center justify-center">
+                        <img src="b.jpeg" alt="Warm Lanterns"
+                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-90 group-hover:opacity-100"
+                            onerror="this.src='https://placehold.co/600x400/2a1b32/ff758f?text=Harapan+Hangat'" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-night-dark/80 via-transparent to-transparent">
+                        </div>
+                        <span
+                            class="absolute bottom-3 left-3 text-xs bg-purple-500/80 text-white font-bold px-2.5 py-1 rounded-lg backdrop-blur-sm">
+                            16 Juni 2026
+                        </span>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="font-handwriting text-2xl text-purple-200">"Pertemuan Sebelum Berangkat"</p>
+                        <p class="text-xs text-slate-400 mt-1">Berpegangan tangan melewati waktu</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- MAIN MANDATORY LETTER SECTION (Surat Bercahaya Dari Neng) -->
+        <section class="relative">
+            <!-- Glow backdrop decoration -->
+            <div
+                class="absolute -inset-1 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 rounded-3xl blur-xl opacity-40 animate-pulse-glow">
+            </div>
+
+            <div
+                class="relative glass-card-gold p-6 sm:p-10 md:p-12 rounded-3xl border border-amber-300/40 text-slate-100 shadow-2xl">
+
+                <!-- Envelope Stamp Top Right -->
+                <div
+                    class="absolute top-6 right-6 hidden sm:flex flex-col items-center p-2 rounded-xl border border-amber-400/30 bg-night-dark/50">
+                    <span class="text-2xl">🦁💕</span>
+                    <span class="text-[10px] text-amber-300 font-mono mt-1">SPECIAL 10.05</span>
+                </div>
+
+                <!-- Header Letter -->
+                <div class="flex items-center gap-3 mb-6">
+                    <div
+                        class="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center text-amber-300">
+                        <i class="fas fa-envelope-open-text text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs uppercase tracking-widest text-amber-400 font-semibold">Surat Spesial Dari
+                            Neng</h3>
+                        <p class="text-lg font-bold text-amber-100">Untuk Abang Tersayang 🦁</p>
+                    </div>
+                </div>
+
+                <!-- Mandatory Text Content -->
+                <div
+                    class="prose prose-invert max-w-none text-slate-200 leading-relaxed space-y-4 text-base md:text-lg font-light">
+                    <p
+                        class="italic text-amber-200 font-romantic text-2xl md:text-3xl border-l-2 border-amber-400 pl-4 py-1 my-4">
+                        "Terima kasih sudah berani memulai, terima kasih sudah sabar, terima kasih sudah mau sama-sama
+                        belajar dan bertumbuh."
+                    </p>
+
+                    <p>
+                        Maaf atas semua sikapku yang membuatmu kesal atau marah. Terkadang aku tidak tahu harus mulai
+                        dari mana, banyak cerita yang sebenarnya ingin aku ceritakan, bahkan sesederhana kesalku pun
+                        ingin aku bagi denganmu.
+                    </p>
+
+                    <p>
+                        Terlepas dari jarak dan semua yang telah kita lewati akhir-akhir ini, mari tetap saling
+                        berpegangan dan berjalan beriringan.
+                    </p>
+
+                    <div
+                        class="pt-4 border-t border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <p class="font-bold text-amber-300 text-xl font-romantic tracking-wide">
+                            Another year around the sun, I love you Abang 💕🦁
+                        </p>
+                        <span class="text-sm text-slate-400 font-handwriting text-xl">
+                            Salam hangat & rindu, <span class="text-amber-300 font-bold">Neng</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Korean Romantic Expressions Ribbon -->
+                <div class="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-2 justify-center sm:justify-start">
+                    <span
+                        class="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-medium border border-rose-500/30">
+                        사랑해 (Aku mencintaimu)
+                    </span>
+                    <span
+                        class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-medium border border-amber-500/30">
+                        보고 싶어 (Aku merindukanmu)
+                    </span>
+                    <span
+                        class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-medium border border-purple-500/30">
+                        영원히 함께하자 (Mari bersama selamanya)
+                    </span>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- INTERACTIVE BUTTONS & SURPRISE POPUP SECTION -->
+        <section class="flex flex-col items-center justify-center gap-6 text-center py-6">
+            <h3 class="text-2xl font-bold text-amber-200">Kirimkan dari Jarak Jauh</h3>
+            <p class="text-slate-300 text-sm max-w-md">
+                Tekan tombol di bawah ini yaa abang.
+            </p>
+
+            <div class="flex flex-wrap justify-center items-center gap-4 w-full max-w-md">
+                <!-- Send LDR Hug Button -->
+                <button onclick="sendLdrHug()"
+                    class="w-full sm:w-auto flex-1 px-6 py-4 rounded-2xl bg-gradient-to-r from-rose-500 to-amber-500 text-slate-950 font-bold hover:brightness-110 active:scale-95 transition-all duration-300 shadow-[0_0_25px_rgba(255,117,143,0.5)] flex items-center justify-center gap-3">
+                    <i class="fas fa-heart-pulse text-xl"></i>
+                    <span>Kirim Peluk & Kasih Sayang Jarak Jauh (hehehe) 💕</span>
+                </button>
+
+                <!-- Open Secret Note Modal Button -->
+                <button onclick="openSecretModal()"
+                    class="w-full sm:w-auto flex-1 px-6 py-4 rounded-2xl glass-card text-amber-300 border border-amber-400/40 font-semibold hover:bg-amber-400/10 active:scale-95 transition-all duration-300 flex items-center justify-center gap-3">
+                    <i class="fas fa-key text-lg"></i>
+                    <span>Buka Pesan Rahasia 🔑</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- FOOTER SECTION -->
+        <footer
+            class="text-center py-8 border-t border-white/10 text-xs text-slate-400 flex flex-col items-center gap-2">
+            <p class="flex items-center gap-2 text-sm text-slate-300">
+                Dibuat penuh dengan cinta dari <span class="text-amber-300 font-bold">Neng 🐣</span> untuk <span
+                    class="text-amber-300 font-bold">Abang 🦁</span>
+            </p>
+            <p class="text-slate-500">
+                5 Oktober 1999 • 6 Juni 2026 • Korea Selatan 🇰🇷 & Indonesia 🇮🇩
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- SECRET POPUP MODAL -->
+    <div id="secretModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+        <div
+            class="glass-card-gold p-6 sm:p-8 rounded-3xl max-w-lg w-full transform scale-95 transition-transform duration-300 relative border border-amber-400/50 text-center shadow-2xl">
+            <button onclick="closeSecretModal()"
+                class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div
+                class="w-16 h-16 rounded-full bg-amber-500/20 border border-amber-400 flex items-center justify-center text-3xl mx-auto mb-4 text-amber-300">
+                💌
+            </div>
+
+            <h4 class="text-2xl font-bold text-amber-200 mb-2">Pesan Kecil dari Neng ✨</h4>
+            <p class="text-xs uppercase tracking-widest text-rose-300 font-semibold mb-4">"영원히 함께하자" • Mari Bersama
+                Selamanya</p>
+
+            <div
+                class="bg-night-dark/60 p-4 rounded-2xl text-slate-200 text-sm text-left space-y-3 leading-relaxed border border-white/10 font-light my-4">
+                <p>
+                    Abang, terima kasih ya sudah berjuang sangat keras selama merantau di Korea. Neng tahu pasti tidak
+                    mudah jauh dari rumah, tapi Neng selalu bangga sama Abang!
+                </p>
+                <p>
+                    Jaga kesehatan selalu di sana, porsi makan dijaga, dan jangan lupa tersenyum ya. Ingat, ada Neng di
+                    sini yang selalu mendoakan dan menunggu Abang kembali.
+                </p>
+                <p>
+                    Doa terbaik untuk Abang❤ Jangan lupa untuk sayang Neng selalu😁
+                </p>
+                <p class="text-amber-300 font-semibold text-center pt-2">
+                    Selamat ulang tahun Abang Sayang! Happy 27th! 🎂🎉
+                </p>
+            </div>
+
+            <button onclick="triggerConfetti(); closeSecretModal();"
+                class="w-full py-3 rounded-xl bg-amber-400 text-night-dark font-bold hover:bg-amber-300 transition-colors shadow-lg mt-2">
+                Tiup Lilin & Harapan Ulang Tahun 🕯️✨
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & AUDIO CONTROL -->
+    <script>
+        // ----------------------------------------------------
+        // 1. STARFIELD CANVAS ANIMATION (Warm Night Sky Glow)
+        // ----------------------------------------------------
+        const canvas = document.getElementById('starCanvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const starCount = Math.floor((canvas.width * canvas.height) / 3000);
+            for (let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.8 + 0.3,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.02 + 0.005,
+                    color: Math.random() > 0.3 ? '#ffb703' : '#ffffff'
+                });
+            }
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(star => {
+                star.alpha += star.speed;
+                if (star.alpha > 1 || star.alpha < 0) {
+                    star.speed = -star.speed;
+                }
+                ctx.save();
+                ctx.globalAlpha = Math.abs(star.alpha);
+                ctx.fillStyle = star.color;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+            requestAnimationFrame(animateStars);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        animateStars();
+
+        // ----------------------------------------------------
+        // 2. FLOATING LANTERNS GENERATOR
+        // ----------------------------------------------------
+        function createLanterns() {
+            const container = document.getElementById('lanterns-container');
+            const count = 8;
+            for (let i = 0; i < count; i++) {
+                const lantern = document.createElement('div');
+                const size = Math.random() * 20 + 25;
+                const left = Math.random() * 90 + 5;
+                const duration = Math.random() * 15 + 15;
+                const delay = Math.random() * 10;
+
+                lantern.className = 'absolute rounded-full lantern animate-float-slow';
+                lantern.style.width = `${size}px`;
+                lantern.style.height = `${size * 1.3}px`;
+                lantern.style.left = `${left}%`;
+                lantern.style.bottom = `-10%`;
+                lantern.style.animation = `floatUpLantern ${duration}s linear infinite`;
+                lantern.style.animationDelay = `${delay}s`;
+                lantern.style.opacity = '0.75';
+
+                container.appendChild(lantern);
+            }
+        }
+
+        // Keyframe animation for lanterns floating up
+        const styleSheet = document.createElement('style');
+        styleSheet.innerText = `
+            @keyframes floatUpLantern {
+                0% { transform: translateY(0) scale(0.8) rotate(0deg); opacity: 0; }
+                20% { opacity: 0.8; }
+                80% { opacity: 0.6; }
+                100% { transform: translateY(-110vh) scale(1.2) rotate(15deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+        createLanterns();
+
+        // ----------------------------------------------------
+        // 3. DAYS TOGETHER CALCULATOR
+        // ----------------------------------------------------
+        function updateDaysTogether() {
+            const startDate = new Date('2026-06-06T00:00:00');
+            const today = new Date();
+            const diffTime = Math.abs(today - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            const daysElem = document.getElementById('daysTogetherCount');
+            if (daysElem) {
+                daysElem.innerHTML = `${diffDays} <span class="text-lg font-normal text-slate-300">Hari</span>`;
+            }
+        }
+        updateDaysTogether();
+
+        // ----------------------------------------------------
+        // 4. AUDIO FILE CONTROL (Raja Giannuca)
+        // ----------------------------------------------------
+        const audio = document.getElementById('bgMusic');
+        let isPlaying = false;
+
+        function toggleMusic() {
+            const musicPulse = document.getElementById('musicPulse');
+            const musicText = document.getElementById('musicText');
+            const musicIcon = document.getElementById('musicIcon');
+
+            if (!isPlaying) {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    musicPulse.classList.remove('hidden');
+                    musicText.innerText = 'Masa Ini, Nanti... 🎵';
+                    musicIcon.className = 'fas fa-compact-disc text-lg animate-spin-slow';
+                }).catch(err => {
+                    console.log("Audio play error:", err);
+                    alert("Klik di mana saja pada layar dulu yaa supaya lagunya bisa diputar.");
+                });
+            } else {
+                audio.pause();
+                isPlaying = false;
+                musicPulse.classList.add('hidden');
+                musicText.innerText = 'Play Musik Romantis';
+                musicIcon.className = 'fas fa-music text-lg';
+            }
+        }
+
+        // Putar audio secara otomatis pada interaksi pertama pengguna jika diizinkan browser
+        document.addEventListener('click', function autoPlayOnce() {
+            if (!isPlaying) {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    const musicPulse = document.getElementById('musicPulse');
+                    const musicText = document.getElementById('musicText');
+                    const musicIcon = document.getElementById('musicIcon');
+                    if (musicPulse) musicPulse.classList.remove('hidden');
+                    if (musicText) musicText.innerText = 'Masa Ini, Nanti... 🎵';
+                    if (musicIcon) musicIcon.className = 'fas fa-compact-disc text-lg animate-spin-slow';
+                }).catch(() => { });
+            }
+            document.removeEventListener('click', autoPlayOnce);
+        }, { once: true });
+
+        // ----------------------------------------------------
+        // 5. LDR HUG & FLOATING HEARTS EFFECT
+        // ----------------------------------------------------
+        function sendLdrHug() {
+            triggerConfetti();
+
+            const heartIcons = ['💖', '🦁', '🐣', '💕', '✨', '🌸', '🇰🇷', '🇮🇩'];
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart-particle text-2xl md:text-4xl';
+                    heart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                    heart.style.left = `${Math.random() * 80 + 10}%`;
+                    heart.style.bottom = '5%';
+                    heart.style.animationDuration = `${Math.random() * 2 + 3}s`;
+                    document.body.appendChild(heart);
+
+                    setTimeout(() => heart.remove(), 4000);
+                }, i * 120);
+            }
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.7 },
+                    colors: ['#ffb703', '#ff758f', '#c77dff', '#ffffff']
+                });
+            }
+        }
+
+        // ----------------------------------------------------
+        // 6. SECRET POPUP MODAL LOGIC
+        // ----------------------------------------------------
+        function openSecretModal() {
+            const modal = document.getElementById('secretModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-95');
+            modal.querySelector('div').classList.add('scale-100');
+        }
+
+        function closeSecretModal() {
+            const modal = document.getElementById('secretModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+        }
+    </script>
+</body>
+
+</html>
